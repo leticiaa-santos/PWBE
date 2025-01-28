@@ -228,16 +228,65 @@
 # idade e o histórico de consultas de um paciente. Implemente métodos para adicionar 
 # uma nova consulta ao histórico e exibir as consultas realizadas
 
-class Paciente:
-    def __init__(self, nome, idade,  adiciona_consulta):
-        self.nome = nome
-        self.idade = idade
-        self.historico = 0
-        self.adiciona_consulta = adiciona_consulta
+# class Paciente:
+#     def __init__(self, nome, idade):
+#         self.nome = nome
+#         self.idade = idade
+#         self.historico = []
 
-    def nova_consulta(self):
-        self.historico = self.historico + self.adiciona_consulta
-        print(f"O histórico de consultas é: {self.adiciona_consulta}")
+#     def nova_consulta(self, consulta):
+#         self.historico.append(consulta)
 
-paciente_1 = Paciente("paciente 1", 10, 1)
-paciente_1.nova_consulta()
+#     def mostrar_historico(self):
+#         if not self.historico:
+#             print(f"O paciente {self.nome} ainda não tem nenhuma consulta")
+#         else:
+#             print(f"O paciente {self.nome} possui as consultas: ")
+#             for i, consulta in enumerate(self.historico, 1):
+#                 print(f"{i} - {consulta}")
+
+
+# paciente_1 = Paciente("Paciente 1", 10)
+# paciente_1.nova_consulta("Pediatra")
+# paciente_1.nova_consulta("Ortopedista")
+# paciente_1.mostrar_historico()
+
+
+# =========================== EXERCICIO 10 ===============================
+# Implemente uma classe chamada “Livro” com atributos para armazenar o título, o
+# autor e o número de páginas do livro. Adicione métodos para emprestar o livro,
+# devolvê-lo e verificar se está disponível.
+
+# class Livro:
+#     def __init__(self, titulo, autor, paginas):
+#         self.titulo = titulo
+#         self.autor = autor
+#         self.paginas = paginas
+#         self.livro_disponivel = True
+
+#     def emprestar_livro(self):
+#         if self.livro_disponivel:
+#             self.livro_disponivel = False
+#             print(f"Parabéns, você pegou emprestado o livro {self.titulo}")
+#         else:
+#             print(f"O livro {self.titulo} não está disponível para empréstimo no momento")
+
+#     def devolver_livro(self):
+#         if not self.livro_disponivel:
+#             self.livro_disponivel = True
+#             print(f"Você devolveu o livro {self.titulo} com sucesso")
+#         else:
+#             print("O livro já foi devolvido, essa operação não pode ser realizada")
+
+#     def verificar_disponibilidade(self):
+#         if self.livro_disponivel:
+#             print(f"O livro {self.titulo} está disponível")
+#         else:
+#             print(f"O livro {self.titulo} não está disponível")
+
+
+# livro_1 = Livro("Crepusculo", "stephanie mayer", 324)
+# livro_1.emprestar_livro()
+# livro_1.verificar_disponibilidade()
+# livro_1.devolver_livro()
+# livro_1.verificar_disponibilidade()
