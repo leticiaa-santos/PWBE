@@ -290,3 +290,72 @@
 # livro_1.verificar_disponibilidade()
 # livro_1.devolver_livro()
 # livro_1.verificar_disponibilidade()
+
+# ======================== EXERCICIO 11 =============================
+# Implemente uma classe chamada “Banco” que represente uma instituição financeira.
+# Essa classe deve conter métodos para cadastrar clientes, abrir contas bancárias e
+# realizar operações como saques, depósitos e transferências.
+
+class Banco:
+    def __init__(self):
+        self.clientes = []
+        self.cliente = {}
+
+
+    def menu_opcoes(self):
+        opcao = input("""O que deseja fazer?
+        [1] Abrir conta
+        [2] Sacar
+        [3] Depositar
+        [4] Tranferir
+        [5] Sair
+        """)
+
+        if opcao == '1':
+            self.cadastrar_clientes()
+        elif opcao == '2':
+            self.sacar()
+        elif opcao == '3':
+            self.depositar()
+        elif opcao == '4':
+            self.transferir()
+        elif opcao == '5':
+            print("Até mais! Obrigado por usar nossos serviços!")
+        else:
+            print("Opção inválida. Informe um número que esteja no menu de opções")
+            self.menu_opcoes()
+
+
+    def cadastrar_clientes(self):
+        print("=============================== Banco ===========================")
+        nome = input("Informe seu nome: ")
+        cpf = input("Informe seu CPF: ")
+        idade = input("Informe sua idade: ")
+        senha = input("Informe uma senha")
+        saldo = 0
+
+        cliente = {'nome' : nome,
+                   'CPF' : cpf,
+                   'idade' : idade,
+                   'senha' : senha,
+                   'saldo' : saldo} 
+        
+        self.clientes.append(cliente)
+        
+        print(f"Cliente {nome} foi cadastrado com sucesso")
+        print(f"É necessário fazer um depósito inicial na conta")
+        valor = float(input("Informe o valor que deseja depositar: "))
+        cliente ['saldo'] += valor 
+
+    def sacar(self):
+        cpf = input("Informe o seu CPF para sacar: ")
+        cliente = self.encontrar_cliente(cpf)
+
+        if cliente: 
+            if cliente ['saldo'] == 0:
+                print(f"{cliente['nome']} não tem saldo suficiente para sacar")
+        
+        
+
+banco = Banco()
+banco.menu_opcoes()
