@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Biblioteca Bosch</title>
+</head>
+<body>
+    <section class="cabecalho">
+        <h1>Biblioteca</h1>
+
+            <form method="post">
+                {% csrf_token %}
+                <input name="livro_filtro" placeholder="Faça uma pesquisa" class="campo_pesquisa"></input>
+                <button type="submit">Pesquisar</button>
+            </form>
+            <a href="{% url 'livro_create' %}" class="cadastrar">Cadastre um novo livro</a>
+    </section>
+
+
+    <section class="listas">
+        <ul>
+            <h3 class="titulo_lista">Lista geral:</h3>
+            {% for i in livros %}
+                <li>
+                    <h3>
+                        Título: {{i.titulo}}
+                    </h3>
+                    <p>
+                        Autor: {{i.autores}}
+                    </p>
+                    <p>
+                       Ano publicação: {{i.ano}}
+                    </p>
+                    <div class="botoes">
+                        <a href="{% url 'livro_update' i.pk %}" class="botao_acao">Editar</a>
+                        <a href="{% url 'livro_delete' i.pk %}" class="botao_acao">Deletar</a>
+                    </div>
+                </li>
+            {% endfor %}
+        </ul>
+
+        <ul>
+            <h3 class="titulo_lista">Pesquisados:</h3>
+            {% for i in livro %}
+                <li>
+                    <h3>
+                        Título: {{i.titulo}}
+                    </h3>
+                    <p>
+                        Autor: {{i.autores}}
+                    </p>
+                    <p>
+                       Ano publicação: {{i.ano}}
+                    </p>
+                    <div class="botoes">
+                        <a href="{% url 'livro_update' i.pk %}" class="botao_acao">Editar</a>
+                        <a href="{% url 'livro_delete' i.pk %}" class="botao_acao">Deletar</a>
+                    </div>
+                </li>
+            {% endfor %}
+        </ul>
+        
+        
+    </section>
+
+    <style>
+        .cabecalho{
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            width: 70%;
+            margin: auto;
+        }
+
+        .cadastrar{
+            text-decoration: none;
+            text-align: center;
+            background-color: #6495ed;
+            color: #ffffff;
+            padding: 5px;
+            border-radius: 5px;
+        }
+
+        .listas{
+            display: grid;
+            justify-content: center;
+            grid-template-columns: 500px 500px;
+            gap: 90px;
+        }
+
+        .titulo_lista{
+            color: #6495ed;
+            font-size: 22px;
+        }
+
+        .botoes{
+            display: flex;
+            gap: 30px;
+        }
+
+        .botao_acao{
+            text-decoration: none;
+            background-color: #6495ed;
+            color: #ffffff;
+            border-radius: 5px;
+            padding: 5px;
+        }
+
+        body{
+            background-color: #f5f5f5;
+        }
+
+        li{
+            display: flex;
+            flex-direction: column;
+            background-color: #ffffff;
+            border-radius: 5px;
+            padding: 0px 15px 15px 15px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
+
+        ul{
+            display: flex;
+            flex-direction: column;
+            gap: 30px;
+        }
+    </style>
+
+</body>
+</html>
