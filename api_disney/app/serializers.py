@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import Usuario, Empresa
+from .models import Usuario, Empresa, Ingresso
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 
 class UsuarioSerializer(serializers.ModelSerializer):
@@ -20,3 +20,8 @@ class LoginSerializer(TokenObtainPairSerializer): # obter par do token para a ma
             'username': self.user.username,
         }
         return data # retorna os dados
+    
+class IngressoSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Ingresso
+        fields = '__all__'

@@ -6,10 +6,11 @@ class Empresa(models.Model):
     nome = models.CharField(max_length=100)
     cnpj = models.CharField(max_length=100)
 
+
 # criação da tabela usuario
 class Usuario(AbstractUser):
     apelido = models.CharField(max_length=100, null=True, blank=True)
-    telfone = models.CharField(max_length=100, null=True, blank=True)
+    telefone = models.CharField(max_length=100, null=True, blank=True)
     genero = models.CharField(max_length=100, choices=(('M', 'Masculino'), ('F', 'Feminino'), ('N', 'Prefiro não informar')))
     
     escolha_colaborador = (
@@ -24,3 +25,8 @@ class Usuario(AbstractUser):
     REQUIRED_FIELDS = ['colaborador']
 
     empresa = models.ForeignKey(Empresa, on_delete=models.CASCADE, null=True, blank=True)
+
+# exemplo para formativa
+class Ingresso(models.Model):
+    nome = models.CharField(max_length=100)
+    usuario = models.ForeignKey(Usuario, on_delete=models.CASCADE)
