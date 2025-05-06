@@ -1,3 +1,3 @@
 from django.contrib import admin
-
-# Register your models here.
+from .models import Usuario, Disciplina, ReservaAmbiente, Sala
+from django.contrib.auth.admin import UserAdmin

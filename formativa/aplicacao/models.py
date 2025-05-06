@@ -8,12 +8,12 @@ class Usuario(AbstractUser):
     ]
 
     tipo = models.CharField(max_length=1, choices=TIPO_CHOICHES, default='P')
-    ni = models.IntegerField()
+    ni = models.IntegerField(unique=True)
     telefone = models.CharField(max_length=20, blank=True, null=True)
     data_nascimento = models.DateField()
     data_contratacao = models.DateField()
 
-    REQUIRED_FIELDS = ['ni', 'data_nascimento', 'data_contratacao']
+    REQUIRED_FIELDS = ['ni', 'data_nascimento', 'data_contratacao', 'tipo']
 
     def __str__(self):
         return f'{self.username} ({self.get_tipo_display()})' # função para mostrar o valor da chave no dicionário de escolhas

@@ -1,11 +1,20 @@
 from rest_framework import serializers
-from .models import Usuario, Disciplina, ReservaAmbiente
+from .models import Usuario, Disciplina, ReservaAmbiente, Sala
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 
 class UsuarioSerializer(serializers.ModelSerializer):
     class Meta:
         model = Usuario
         fields = '__all__'
+        extra_kwargs = {
+            'password': {'write_only': True}
+        }
+        
+    def create(self, validated_data):
+        user = Usuario(**validated_data)
+        user.set_password(validated_data['password'])  
+        user.save()
+        return user
 
 class DisciplinaSerializer(serializers.ModelSerializer):
     class Meta:
@@ -30,3 +39,8 @@ class LoginSerializer(TokenObtainPairSerializer):
             'tipo': self.user.tipo
         }
         return data
+    
+class SalaSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Sala
+        fields = '__all__'

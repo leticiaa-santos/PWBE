@@ -1,7 +1,8 @@
+from django.forms import ValidationError
 from django.shortcuts import render
 from rest_framework.generics import ListCreateAPIView, RetrieveUpdateDestroyAPIView, ListAPIView
-from .models import Usuario, Disciplina, ReservaAmbiente
-from .serializers import UsuarioSerializer, DisciplinaSerializer, ReservaAmbienteSerializer, LoginSerializer
+from .models import Usuario, Disciplina, ReservaAmbiente, Sala
+from .serializers import UsuarioSerializer, DisciplinaSerializer, ReservaAmbienteSerializer, LoginSerializer, SalaSerializer
 from .permissions import IsGestor, IsProfessor, IsDonoOuGestor
 from rest_framework.permissions import IsAuthenticated
 from rest_framework_simplejwt.views import TokenObtainPairView
@@ -83,5 +84,22 @@ class ReservaAmbienteProfessorList(ListAPIView):
     def get_queryset(self):
         return ReservaAmbiente.objects.filter(professor=self.request.user)
 
+# view que vai permitir o usuário logar e ter os tokens
 class LoginView(TokenObtainPairView):
     serializer_class = LoginSerializer
+
+
+class SalaListCreate(ListCreateAPIView):
+    queryset = Sala.objects.all()
+    serializer_class = SalaSerializer
+
+    def get_permissions(self):
+        if self.request.method == 'GET':
+            return[IsAuthenticated()]
+        return [IsGestor()]
+    
+
+class SalaRetrieveUpdateDestroy(RetrieveUpdateDestroyAPIView):
+    queryset = Sala.objects.all()
+    serializer_class = SalaSerializer
+    permission_classes = [IsGestor]
