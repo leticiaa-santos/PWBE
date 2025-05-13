@@ -1,4 +1,3 @@
-from django.forms import ValidationError
 from django.shortcuts import render
 from rest_framework.generics import ListCreateAPIView, RetrieveUpdateDestroyAPIView, ListAPIView
 from .models import Usuario, Disciplina, ReservaAmbiente, Sala
@@ -6,6 +5,8 @@ from .serializers import UsuarioSerializer, DisciplinaSerializer, ReservaAmbient
 from .permissions import IsGestor, IsProfessor, IsDonoOuGestor
 from rest_framework.permissions import IsAuthenticated
 from rest_framework_simplejwt.views import TokenObtainPairView
+from rest_framework.response import Response
+from rest_framework import status
 
 # GET e POST do usuário permitido somente para o Gestor
 class UsuarioListCreate(ListCreateAPIView):
@@ -31,7 +32,8 @@ class DisciplinaListCreate(ListCreateAPIView):
         if self.request.method == 'GET':
             return [IsAuthenticated()]
         return [IsGestor()]
-
+    
+    
 # GET, PUT, PATCH e DELETE que é permitido somente para o gestor
 # ver, atualizar e deletar uma disciplina específica
 class DisciplinaRetrieveUpdateDestroy(RetrieveUpdateDestroyAPIView):
@@ -39,6 +41,13 @@ class DisciplinaRetrieveUpdateDestroy(RetrieveUpdateDestroyAPIView):
     serializer_class = DisciplinaSerializer
     permission_classes = [IsGestor]
     lookup_field = 'pk'
+    
+    def destroy(self, request, *args, **kwargs):
+        disciplina = self.get_object()
+        print(f'Excluindo disciplina: {disciplina.nome}')
+        self.perform_destroy(disciplina)
+        return Response({'detail': f'Disciplina "{disciplina.nome}" excluída com sucesso.'}, status=status.HTTP_200_OK)
+
 
 # listagem das disciplinas (professor)
 class DisciplinaProfessorList(ListAPIView):

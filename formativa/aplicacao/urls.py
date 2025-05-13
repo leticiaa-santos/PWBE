@@ -16,7 +16,7 @@ urlpatterns = [
     # Disciplina
     path('disciplinas/', DisciplinaListCreate.as_view()),
     path('disciplinas/<int:pk>/', DisciplinaRetrieveUpdateDestroy.as_view()),
-    path('professor/disciplinas', DisciplinaProfessorList.as_view()),   
+    path('professor/disciplinas/', DisciplinaProfessorList.as_view()),   
 
     # Reserva Ambiente
     path('reservas/', ReservaAmbienteListCreate.as_view()),
