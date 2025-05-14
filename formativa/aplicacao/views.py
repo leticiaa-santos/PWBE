@@ -21,6 +21,13 @@ class UsuarioRetrieveUpdateDestroy(RetrieveUpdateDestroyAPIView):
     serializer_class = UsuarioSerializer
     permission_classes = [IsGestor]
     lookup_field = 'pk' # por qual campo procura
+    
+    def destroy(self, request, *args, **kwargs):
+        usuario = self.get_object()
+        print(f'Excluindo disciplina: {usuario.username}')
+        self.perform_destroy(usuario)
+        return Response({'detail': f'Usuário "{usuario.username}" excluído com sucesso.'}, status=status.HTTP_200_OK)
+
 
 # ver todas as displinas e criar uma nova disciplina (apenas o gestor pode fazer)
 class DisciplinaListCreate(ListCreateAPIView):
@@ -83,6 +90,13 @@ class ReservaAmbienteRetrieveUpdateDestroy(RetrieveUpdateDestroyAPIView):
     serializer_class = ReservaAmbienteSerializer
     permission_classes = [IsDonoOuGestor]
     lookup_field = 'pk'
+    
+    def destroy(self, request, *args, **kwargs):
+        reserva = self.get_object()
+        nome_sala = reserva.sala_reservada.nome
+        self.perform_destroy(reserva)
+        return Response({'detail': f'Reserva na sala "{nome_sala}" excluída com sucesso.'}, status=status.HTTP_200_OK)
+
 
 # permite que apenas o professor pode ver suas próprias reservas
 class ReservaAmbienteProfessorList(ListAPIView):
