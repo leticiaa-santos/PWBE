@@ -1,6 +1,7 @@
 from rest_framework.permissions import BasePermission
 
 class IsGestor(BasePermission):
+    message = "Essa é uma ação só para gestores"
     def has_permission(self, request, view):
         return request.user.is_authenticated and request.user.tipo == 'G' # permite que apenas o usuário autenticado, sendo gestor tenha as permissões
     

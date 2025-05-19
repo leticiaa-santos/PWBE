@@ -1,3 +1,4 @@
+from django.http import Http404
 from django.shortcuts import render
 from rest_framework.generics import ListCreateAPIView, RetrieveUpdateDestroyAPIView, ListAPIView
 from .models import Usuario, Disciplina, ReservaAmbiente, Sala
@@ -7,12 +8,14 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework_simplejwt.views import TokenObtainPairView
 from rest_framework.response import Response
 from rest_framework import status
+from rest_framework.exceptions import ValidationError
 
 # GET e POST do usuário permitido somente para o Gestor
 class UsuarioListCreate(ListCreateAPIView):
     queryset = Usuario.objects.all()
     serializer_class = UsuarioSerializer
     permission_classes = [IsGestor]
+
 
 # GET, PUT, PATCH e DELETE que é permitido somente para o gestor
 # ver, atualizar e deletar um usuario específico
@@ -21,10 +24,14 @@ class UsuarioRetrieveUpdateDestroy(RetrieveUpdateDestroyAPIView):
     serializer_class = UsuarioSerializer
     permission_classes = [IsGestor]
     lookup_field = 'pk' # por qual campo procura
-    
+
+    # método que permite a exibição de mensagens se o usuário não exitir, ou se ele existir, mostrar que foi excluído
     def destroy(self, request, *args, **kwargs):
-        usuario = self.get_object()
-        print(f'Excluindo disciplina: {usuario.username}')
+        try:
+            usuario = self.get_object()
+        except Http404:
+            return Response({'message': 'Usuário não encontrado'}, status=status.HTTP_404_NOT_FOUND)
+
         self.perform_destroy(usuario)
         return Response({'detail': f'Usuário "{usuario.username}" excluído com sucesso.'}, status=status.HTTP_200_OK)
 
@@ -49,9 +56,13 @@ class DisciplinaRetrieveUpdateDestroy(RetrieveUpdateDestroyAPIView):
     permission_classes = [IsGestor]
     lookup_field = 'pk'
     
+    # método que permite a exibição de mensagens para o usuário se a disciplina não existir, ou se ela existir, mostrar que foi excluída
     def destroy(self, request, *args, **kwargs):
-        disciplina = self.get_object()
-        print(f'Excluindo disciplina: {disciplina.nome}')
+        try:
+            disciplina = self.get_object()
+        except Http404:
+            return Response({'message': 'Disciplina não encontrada'}, status=status.HTTP_404_NOT_FOUND)
+
         self.perform_destroy(disciplina)
         return Response({'detail': f'Disciplina "{disciplina.nome}" excluída com sucesso.'}, status=status.HTTP_200_OK)
 
@@ -62,12 +73,33 @@ class DisciplinaProfessorList(ListAPIView):
     permission_classes = [IsProfessor]
 
     def get_queryset(self):
-        return Disciplina.objects.filter(professor=self.request.user) # filtra todas as disciplinas do usuário logado (professor no caso)
+        return Disciplina.objects.filter(professor=self.request.user) # filtra todas as disciplinas do usuário logado (professor, no caso)
     
 # permite criar e listar as reservas, qualquer um pode ver todas, só o gestor pode criar
 class ReservaAmbienteListCreate(ListCreateAPIView):
     queryset = ReservaAmbiente.objects.all()
     serializer_class = ReservaAmbienteSerializer
+
+    # esse método permite a validação das reservas
+    # ele verifica se já existe a reserva com a data de início ou término, a sala e o período e se existir ele exibe um mensagem de erro
+    def perform_create(self, serializer):
+        print("Não foi possível fazer a reserva")
+        data_inicio = serializer.validated_data.get('data_inicio')
+        data_termino = serializer.validated_data.get('data_termino')
+        sala_reservada = serializer.validated_data.get('sala_reservada')
+        periodo = serializer.validated_data.get('periodo')
+
+        reserva = ReservaAmbiente.objects.filter(
+            sala_reservada = sala_reservada, 
+            data_inicio__lte= data_termino, 
+            data_termino__gte=data_inicio, 
+            periodo = periodo
+        ).exists()
+
+        if reserva:
+            raise ValidationError("Não é possível realizar essa reserva, já existe uma!")
+
+        serializer.save()
 
     # se for método get qualquer usuário pode visualizar, se for outro método só o gestor pode realizar a ação
     def get_permissions(self):
@@ -90,10 +122,15 @@ class ReservaAmbienteRetrieveUpdateDestroy(RetrieveUpdateDestroyAPIView):
     serializer_class = ReservaAmbienteSerializer
     permission_classes = [IsDonoOuGestor]
     lookup_field = 'pk'
-    
+
+    # método que permite a exibição de mensagens para o usuário se a reserva não exitir, ou se ela existir, mostrar que foi excluída
     def destroy(self, request, *args, **kwargs):
-        reserva = self.get_object()
-        nome_sala = reserva.sala_reservada.nome
+        try:
+            reserva = self.get_object()
+            nome_sala = reserva.sala_reservada.nome
+        except Http404:
+            return Response({'message': 'Reserva não encontrada'}, status=status.HTTP_404_NOT_FOUND)
+
         self.perform_destroy(reserva)
         return Response({'detail': f'Reserva na sala "{nome_sala}" excluída com sucesso.'}, status=status.HTTP_200_OK)
 
@@ -111,18 +148,30 @@ class ReservaAmbienteProfessorList(ListAPIView):
 class LoginView(TokenObtainPairView):
     serializer_class = LoginSerializer
 
-
+# permite criar e listar as salas, qualquer um pode ver todas, só o gestor pode criar
 class SalaListCreate(ListCreateAPIView):
     queryset = Sala.objects.all()
     serializer_class = SalaSerializer
 
+    # se for método get qualquer usuário pode visualizar, se for outro método só o gestor pode realizar a ação
     def get_permissions(self):
         if self.request.method == 'GET':
             return[IsAuthenticated()]
         return [IsGestor()]
     
-
+# GET, PUT, PATCH e DELETE que é permitido somente para o gestor
+# ver, atualizar e deletar uma sala específica
 class SalaRetrieveUpdateDestroy(RetrieveUpdateDestroyAPIView):
     queryset = Sala.objects.all()
     serializer_class = SalaSerializer
     permission_classes = [IsGestor]
+
+    # método que permite a exibição de mensagens para o usuário se a reserva não exitir, ou se ela existir, mostrar que foi excluída
+    def destroy(self, request, *args, **kwargs):
+        try:
+            sala = self.get_object()
+        except Http404:
+            return Response({'message': 'Sala não encontrada'}, status=status.HTTP_404_NOT_FOUND)
+
+        self.perform_destroy(sala)
+        return Response({'detail': f'Sala "{sala.nome}" excluída com sucesso.'}, status=status.HTTP_200_OK)

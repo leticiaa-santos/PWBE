@@ -1,5 +1,15 @@
 from django.urls import path
-from .views import LoginView, UsuarioListCreate, UsuarioRetrieveUpdateDestroy, ReservaAmbienteListCreate, ReservaAmbienteRetrieveUpdateDestroy, ReservaAmbienteProfessorList, DisciplinaListCreate, DisciplinaRetrieveUpdateDestroy, DisciplinaProfessorList, SalaListCreate, SalaRetrieveUpdateDestroy
+from .views import (LoginView, 
+                    UsuarioListCreate, 
+                    UsuarioRetrieveUpdateDestroy, 
+                    ReservaAmbienteListCreate, 
+                    ReservaAmbienteRetrieveUpdateDestroy, 
+                    ReservaAmbienteProfessorList, 
+                    DisciplinaListCreate, 
+                    DisciplinaRetrieveUpdateDestroy, 
+                    DisciplinaProfessorList, 
+                    SalaListCreate, 
+                    SalaRetrieveUpdateDestroy)
 
 urlpatterns = [
     # Login
