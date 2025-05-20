@@ -1,6 +1,7 @@
 from django.db import models
 from django.contrib.auth.models import AbstractUser
 
+# models para a criação do usuário
 class Usuario(AbstractUser):
     TIPO_CHOICHES = [
         ('G', 'gestor'),
@@ -18,6 +19,7 @@ class Usuario(AbstractUser):
     def __str__(self):
         return f'{self.username} ({self.get_tipo_display()})' # função para mostrar o valor da chave no dicionário de escolhas
 
+# models para a criação da disciplina
 class Disciplina(models.Model):
     nome = models.CharField(max_length=255)
     curso = models.CharField(max_length=255)
@@ -28,6 +30,7 @@ class Disciplina(models.Model):
     def __str__(self):
         return self.nome
     
+# models para a criação das salas
 class Sala(models.Model):
     nome = models.CharField(max_length=255)
     capacidade = models.IntegerField()
@@ -35,6 +38,7 @@ class Sala(models.Model):
     def __str__(self):
         return self.nome
     
+# models para a criação de reserva de ambientes
 class ReservaAmbiente(models.Model):
     PERIODO_CHOICES = [
         ('M', 'manhã'),

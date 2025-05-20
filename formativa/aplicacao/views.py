@@ -10,35 +10,34 @@ from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.exceptions import ValidationError
 
-# GET e POST do usuário permitido somente para o Gestor
+# View para listar e criar usuários (acesso restrito a gestores)
 class UsuarioListCreate(ListCreateAPIView):
     queryset = Usuario.objects.all()
     serializer_class = UsuarioSerializer
     permission_classes = [IsGestor]
 
 
-# GET, PUT, PATCH e DELETE que é permitido somente para o gestor
-# ver, atualizar e deletar um usuario específico
+# View para recuperar, atualizar ou deletar um usuário específico (apenas para gestores)
 class UsuarioRetrieveUpdateDestroy(RetrieveUpdateDestroyAPIView):
     queryset = Usuario.objects.all()
     serializer_class = UsuarioSerializer
     permission_classes = [IsGestor]
-    lookup_field = 'pk' # por qual campo procura
-    
-    
-    # método que permite a exibição de mensagens se o usuário não existir, ou se ele existir, retornar, em formato json o usuário que foi filtrado
+    lookup_field = 'pk'
+
+
     def retrieve(self, request, *args, **kwargs):
+        # Retorna os dados de um usuário ou mensagem de erro se não encontrado
         try:
             usuario = self.get_object()
         except Http404:
             return Response({'message': 'Usuário não encontrado'}, status=status.HTTP_404_NOT_FOUND)
 
         serializer = self.get_serializer(usuario)
-        return Response({'usuario ': serializer.data}, status=status.HTTP_200_OK)
-    
-    
-    # método que permite a exibição de mensagens se o usuário não existir, ou se ele existir, retornar, em formato json eles atualizados
+        return Response({'usuario': serializer.data}, status=status.HTTP_200_OK)
+
+
     def update(self, request, *args, **kwargs):
+        # Atualiza os dados de um usuário existente
         try:
             usuario = self.get_object()
         except Http404:
@@ -52,8 +51,8 @@ class UsuarioRetrieveUpdateDestroy(RetrieveUpdateDestroyAPIView):
         return Response({'usuario': serializer.data}, status=status.HTTP_200_OK)
 
 
-    # método que permite a exibição de mensagens se o usuário não existir, ou se ele existir, mostrar que foi excluído
     def destroy(self, request, *args, **kwargs):
+        # Remove um usuário do sistema
         try:
             usuario = self.get_object()
         except Http404:
@@ -63,7 +62,7 @@ class UsuarioRetrieveUpdateDestroy(RetrieveUpdateDestroyAPIView):
         return Response({'detail': f'Usuário "{usuario.username}" excluído com sucesso.'}, status=status.HTTP_200_OK)
 
 
-# ver todas as displinas e criar uma nova disciplina (apenas o gestor pode fazer)
+# View para listar todas as disciplinas (todos autenticados) e criar novas (apenas gestores)
 class DisciplinaListCreate(ListCreateAPIView):
     queryset = Disciplina.objects.all()
     serializer_class = DisciplinaSerializer
@@ -73,30 +72,29 @@ class DisciplinaListCreate(ListCreateAPIView):
         if self.request.method == 'GET':
             return [IsAuthenticated()]
         return [IsGestor()]
-    
-    
-# GET, PUT, PATCH e DELETE que é permitido somente para o gestor
-# ver, atualizar e deletar uma disciplina específica
+
+
+# View para recuperar, atualizar ou deletar uma disciplina (restrito a gestores)
 class DisciplinaRetrieveUpdateDestroy(RetrieveUpdateDestroyAPIView):
     queryset = Disciplina.objects.all()
     serializer_class = DisciplinaSerializer
     permission_classes = [IsGestor]
     lookup_field = 'pk'
-    
-    
-    # método que permite a exibição de mensagens se a disciplina não existir, ou se ela existir, retornar, em formato json a disciplina que foi filtrada
+
+
     def retrieve(self, request, *args, **kwargs):
+        # Retorna os dados de uma disciplina ou mensagem de erro se não encontrada
         try:
             disciplina = self.get_object()
         except Http404:
             return Response({'message': 'Disciplina não encontrada'}, status=status.HTTP_404_NOT_FOUND)
 
         serializer = self.get_serializer(disciplina)
-        return Response({'disciplina ': serializer.data}, status=status.HTTP_200_OK)
-    
-    
-    # método que permite a exibição de mensagens se a disciplina não existir, ou se ela existir, retornar, em formato json ela atualizada
+        return Response({'disciplina': serializer.data}, status=status.HTTP_200_OK)
+
+
     def update(self, request, *args, **kwargs):
+        # Atualiza os dados de uma disciplina
         try:
             disciplina = self.get_object()
         except Http404:
@@ -107,11 +105,11 @@ class DisciplinaRetrieveUpdateDestroy(RetrieveUpdateDestroyAPIView):
         serializer.is_valid(raise_exception=True)
         self.perform_update(serializer)
 
-        return Response({'disciplina ': serializer.data}, status=status.HTTP_200_OK)
-    
-    
-    # método que permite a exibição de mensagens para o usuário se a disciplina não existir, ou se ela existir, mostrar que foi excluída
+        return Response({'disciplina': serializer.data}, status=status.HTTP_200_OK)
+
+
     def destroy(self, request, *args, **kwargs):
+        # Remove uma disciplina do sistema
         try:
             disciplina = self.get_object()
         except Http404:
@@ -121,56 +119,40 @@ class DisciplinaRetrieveUpdateDestroy(RetrieveUpdateDestroyAPIView):
         return Response({'detail': f'Disciplina "{disciplina.nome}" excluída com sucesso.'}, status=status.HTTP_200_OK)
 
 
-# listagem das disciplinas (professor)
+# View que permite ao professor visualizar apenas suas próprias disciplinas
 class DisciplinaProfessorList(ListAPIView):
     serializer_class = DisciplinaSerializer
     permission_classes = [IsProfessor]
 
+
     def get_queryset(self):
-        return Disciplina.objects.filter(professor=self.request.user) # filtra todas as disciplinas do usuário logado (professor, no caso)
-    
-# permite criar e listar as reservas, qualquer um pode ver todas, só o gestor pode criar
+        # Retorna disciplinas associadas ao professor logado
+        return Disciplina.objects.filter(professor=self.request.user)
+
+
+# View para listar todas as reservas (todos autenticados) e criar novas (apenas gestores)
 class ReservaAmbienteListCreate(ListCreateAPIView):
     queryset = ReservaAmbiente.objects.all()
     serializer_class = ReservaAmbienteSerializer
 
-    # esse método permite a validação das reservas
-    # ele verifica se já existe a reserva com a data de início ou término, a sala e o período e se existir ele exibe um mensagem de erro
-    def perform_create(self, serializer):
-        print("Não foi possível fazer a reserva")
-        data_inicio = serializer.validated_data.get('data_inicio')
-        data_termino = serializer.validated_data.get('data_termino')
-        sala_reservada = serializer.validated_data.get('sala_reservada')
-        periodo = serializer.validated_data.get('periodo')
 
-        reserva = ReservaAmbiente.objects.filter(
-            sala_reservada = sala_reservada, 
-            data_inicio__lte= data_termino, 
-            data_termino__gte=data_inicio, 
-            periodo = periodo
-        ).exists()
-
-        if reserva:
-            raise ValidationError("Não é possível realizar essa reserva, já existe uma!")
-
-        serializer.save()
-
-    # se for método get qualquer usuário pode visualizar, se for outro método só o gestor pode realizar a ação
     def get_permissions(self):
+        # Permite acesso GET para autenticados, e POST apenas para gestores
         if self.request.method == 'GET':
             return [IsAuthenticated()]
         return [IsGestor()]
-    
 
-    # permite fazer uma consulta para ver as reservas de um professor específico pelo ID
+
     def get_queryset(self):
+        # Permite filtrar reservas por professor via query param (?professor=id)
         queryset = super().get_queryset()
         professor_id = self.request.query_params.get('professor', None)
-        if professor_id: 
+        if professor_id:
             queryset = queryset.filter(professor_id=professor_id)
         return queryset
-    
-# vai permitir que o gestor ou o dono da reserva consiga editar as reservas
+
+
+# View para recuperar, atualizar ou deletar uma reserva (restrita ao dono ou gestor)
 class ReservaAmbienteRetrieveUpdateDestroy(RetrieveUpdateDestroyAPIView):
     queryset = ReservaAmbiente.objects.all()
     serializer_class = ReservaAmbienteSerializer
@@ -178,19 +160,19 @@ class ReservaAmbienteRetrieveUpdateDestroy(RetrieveUpdateDestroyAPIView):
     lookup_field = 'pk'
 
 
-    # método que permite a exibição de mensagens se a reserva não existir, ou se ela existir, retornar, em formato json a disciplina que foi filtrada
     def retrieve(self, request, *args, **kwargs):
+        # Retorna dados de uma reserva ou mensagem de erro
         try:
             reserva = self.get_object()
         except Http404:
             return Response({'message': 'Reserva não encontrada'}, status=status.HTTP_404_NOT_FOUND)
 
         serializer = self.get_serializer(reserva)
-        return Response({'reserva ': serializer.data}, status=status.HTTP_200_OK)
-    
-    
-    # método que permite a exibição de mensagens se a reserva não existir, ou se ela existir, retornar, em formato json ela atualizada
+        return Response({'reserva': serializer.data}, status=status.HTTP_200_OK)
+
+
     def update(self, request, *args, **kwargs):
+        # Atualiza uma reserva existente
         try:
             reserva = self.get_object()
         except Http404:
@@ -201,11 +183,11 @@ class ReservaAmbienteRetrieveUpdateDestroy(RetrieveUpdateDestroyAPIView):
         serializer.is_valid(raise_exception=True)
         self.perform_update(serializer)
 
-        return Response({'reserva ': serializer.data}, status=status.HTTP_200_OK)
-    
-    
-    # método que permite a exibição de mensagens para o usuário se a reserva não exitir, ou se ela existir, mostrar que foi excluída
+        return Response({'reserva': serializer.data}, status=status.HTTP_200_OK)
+
+
     def destroy(self, request, *args, **kwargs):
+        # Remove uma reserva do sistema
         try:
             reserva = self.get_object()
             nome_sala = reserva.sala_reservada.nome
@@ -216,51 +198,55 @@ class ReservaAmbienteRetrieveUpdateDestroy(RetrieveUpdateDestroyAPIView):
         return Response({'detail': f'Reserva na sala "{nome_sala}" excluída com sucesso.'}, status=status.HTTP_200_OK)
 
 
-# permite que apenas o professor pode ver suas próprias reservas
+# View que permite ao professor ver apenas suas próprias reservas
 class ReservaAmbienteProfessorList(ListAPIView):
     serializer_class = ReservaAmbienteSerializer
     permission_classes = [IsProfessor]
 
-    # filtrar as reservas do professor específico
+
     def get_queryset(self):
+        # Retorna reservas associadas ao professor logado
         return ReservaAmbiente.objects.filter(professor=self.request.user)
 
-# view que vai permitir o usuário logar e ter os tokens
+
+# View para autenticação via JWT (login do usuário)
 class LoginView(TokenObtainPairView):
     serializer_class = LoginSerializer
 
-# permite criar e listar as salas, qualquer um pode ver todas, só o gestor pode criar
+
+# View para listar todas as salas (autenticados) e criar novas (apenas gestores)
 class SalaListCreate(ListCreateAPIView):
     queryset = Sala.objects.all()
     serializer_class = SalaSerializer
 
-    # se for método get qualquer usuário pode visualizar, se for outro método só o gestor pode realizar a ação
+
     def get_permissions(self):
+        # Permite acesso GET para autenticados, e POST apenas para gestores
         if self.request.method == 'GET':
-            return[IsAuthenticated()]
+            return [IsAuthenticated()]
         return [IsGestor()]
-    
-# GET, PUT, PATCH e DELETE que é permitido somente para o gestor
-# ver, atualizar e deletar uma sala específica
+
+
+# View para recuperar, atualizar ou deletar uma sala (apenas para gestores)
 class SalaRetrieveUpdateDestroy(RetrieveUpdateDestroyAPIView):
     queryset = Sala.objects.all()
     serializer_class = SalaSerializer
     permission_classes = [IsGestor]
-    
-    
-    # método que permite a exibição de mensagens se a sala não existir, ou se ela existir, retornar, em formato json a sala que foi filtrada
+
+
     def retrieve(self, request, *args, **kwargs):
+        # Retorna dados de uma sala ou mensagem de erro
         try:
             sala = self.get_object()
         except Http404:
             return Response({'message': 'Sala não encontrada'}, status=status.HTTP_404_NOT_FOUND)
 
         serializer = self.get_serializer(sala)
-        return Response({'sala ': serializer.data}, status=status.HTTP_200_OK)
-    
-    
-    # método que permite a exibição de mensagens se a sala não existir, ou se ela existir, retornar, em formato json ela atualizada
+        return Response({'sala': serializer.data}, status=status.HTTP_200_OK)
+
+
     def update(self, request, *args, **kwargs):
+        # Atualiza uma sala existente
         try:
             sala = self.get_object()
         except Http404:
@@ -271,11 +257,11 @@ class SalaRetrieveUpdateDestroy(RetrieveUpdateDestroyAPIView):
         serializer.is_valid(raise_exception=True)
         self.perform_update(serializer)
 
-        return Response({'sala ': serializer.data}, status=status.HTTP_200_OK)
-    
+        return Response({'sala': serializer.data}, status=status.HTTP_200_OK)
 
-    # método que permite a exibição de mensagens para o usuário se a reserva não exitir, ou se ela existir, mostrar que foi excluída
+
     def destroy(self, request, *args, **kwargs):
+        # Remove uma sala do sistema
         try:
             sala = self.get_object()
         except Http404:

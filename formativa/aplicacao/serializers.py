@@ -26,6 +26,23 @@ class ReservaAmbienteSerializer(serializers.ModelSerializer):
         model = ReservaAmbiente
         fields = '__all__'
 
+    def validate(self, data):
+        data_inicio = data.get('data_inicio')
+        data_termino = data.get('data_termino')
+        sala_reservada = data.get('sala_reservada')
+        periodo = data.get('periodo')
+        if ReservaAmbiente.objects.filter(
+            sala_reservada=sala_reservada,
+            data_inicio__lte=data_termino,
+            data_termino__gte=data_inicio,
+            periodo=periodo
+        ).exists():
+            
+            raise serializers.ValidationError("Não é possível realizar essa reserva, já existe uma!")
+
+        return data
+
+
 class LoginSerializer(TokenObtainPairSerializer):
     username = serializers.CharField()
     password = serializers.CharField(write_only=True)
