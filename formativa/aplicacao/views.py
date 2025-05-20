@@ -24,8 +24,35 @@ class UsuarioRetrieveUpdateDestroy(RetrieveUpdateDestroyAPIView):
     serializer_class = UsuarioSerializer
     permission_classes = [IsGestor]
     lookup_field = 'pk' # por qual campo procura
+    
+    
+    # método que permite a exibição de mensagens se o usuário não existir, ou se ele existir, retornar, em formato json o usuário que foi filtrado
+    def retrieve(self, request, *args, **kwargs):
+        try:
+            usuario = self.get_object()
+        except Http404:
+            return Response({'message': 'Usuário não encontrado'}, status=status.HTTP_404_NOT_FOUND)
 
-    # método que permite a exibição de mensagens se o usuário não exitir, ou se ele existir, mostrar que foi excluído
+        serializer = self.get_serializer(usuario)
+        return Response({'usuario ': serializer.data}, status=status.HTTP_200_OK)
+    
+    
+    # método que permite a exibição de mensagens se o usuário não existir, ou se ele existir, retornar, em formato json eles atualizados
+    def update(self, request, *args, **kwargs):
+        try:
+            usuario = self.get_object()
+        except Http404:
+            return Response({'message': 'Usuário não encontrado'}, status=status.HTTP_404_NOT_FOUND)
+
+        partial = kwargs.pop('partial', False)
+        serializer = self.get_serializer(usuario, data=request.data, partial=partial)
+        serializer.is_valid(raise_exception=True)
+        self.perform_update(serializer)
+
+        return Response({'usuario': serializer.data}, status=status.HTTP_200_OK)
+
+
+    # método que permite a exibição de mensagens se o usuário não existir, ou se ele existir, mostrar que foi excluído
     def destroy(self, request, *args, **kwargs):
         try:
             usuario = self.get_object()
@@ -55,6 +82,33 @@ class DisciplinaRetrieveUpdateDestroy(RetrieveUpdateDestroyAPIView):
     serializer_class = DisciplinaSerializer
     permission_classes = [IsGestor]
     lookup_field = 'pk'
+    
+    
+    # método que permite a exibição de mensagens se a disciplina não existir, ou se ela existir, retornar, em formato json a disciplina que foi filtrada
+    def retrieve(self, request, *args, **kwargs):
+        try:
+            disciplina = self.get_object()
+        except Http404:
+            return Response({'message': 'Disciplina não encontrada'}, status=status.HTTP_404_NOT_FOUND)
+
+        serializer = self.get_serializer(disciplina)
+        return Response({'disciplina ': serializer.data}, status=status.HTTP_200_OK)
+    
+    
+    # método que permite a exibição de mensagens se a disciplina não existir, ou se ela existir, retornar, em formato json ela atualizada
+    def update(self, request, *args, **kwargs):
+        try:
+            disciplina = self.get_object()
+        except Http404:
+            return Response({'message': 'Disciplina não encontrada'}, status=status.HTTP_404_NOT_FOUND)
+
+        partial = kwargs.pop('partial', False)
+        serializer = self.get_serializer(disciplina, data=request.data, partial=partial)
+        serializer.is_valid(raise_exception=True)
+        self.perform_update(serializer)
+
+        return Response({'disciplina ': serializer.data}, status=status.HTTP_200_OK)
+    
     
     # método que permite a exibição de mensagens para o usuário se a disciplina não existir, ou se ela existir, mostrar que foi excluída
     def destroy(self, request, *args, **kwargs):
@@ -123,6 +177,33 @@ class ReservaAmbienteRetrieveUpdateDestroy(RetrieveUpdateDestroyAPIView):
     permission_classes = [IsDonoOuGestor]
     lookup_field = 'pk'
 
+
+    # método que permite a exibição de mensagens se a reserva não existir, ou se ela existir, retornar, em formato json a disciplina que foi filtrada
+    def retrieve(self, request, *args, **kwargs):
+        try:
+            reserva = self.get_object()
+        except Http404:
+            return Response({'message': 'Reserva não encontrada'}, status=status.HTTP_404_NOT_FOUND)
+
+        serializer = self.get_serializer(reserva)
+        return Response({'reserva ': serializer.data}, status=status.HTTP_200_OK)
+    
+    
+    # método que permite a exibição de mensagens se a reserva não existir, ou se ela existir, retornar, em formato json ela atualizada
+    def update(self, request, *args, **kwargs):
+        try:
+            reserva = self.get_object()
+        except Http404:
+            return Response({'message': 'Reserva não encontrada'}, status=status.HTTP_404_NOT_FOUND)
+
+        partial = kwargs.pop('partial', False)
+        serializer = self.get_serializer(reserva, data=request.data, partial=partial)
+        serializer.is_valid(raise_exception=True)
+        self.perform_update(serializer)
+
+        return Response({'reserva ': serializer.data}, status=status.HTTP_200_OK)
+    
+    
     # método que permite a exibição de mensagens para o usuário se a reserva não exitir, ou se ela existir, mostrar que foi excluída
     def destroy(self, request, *args, **kwargs):
         try:
@@ -165,6 +246,33 @@ class SalaRetrieveUpdateDestroy(RetrieveUpdateDestroyAPIView):
     queryset = Sala.objects.all()
     serializer_class = SalaSerializer
     permission_classes = [IsGestor]
+    
+    
+    # método que permite a exibição de mensagens se a sala não existir, ou se ela existir, retornar, em formato json a sala que foi filtrada
+    def retrieve(self, request, *args, **kwargs):
+        try:
+            sala = self.get_object()
+        except Http404:
+            return Response({'message': 'Sala não encontrada'}, status=status.HTTP_404_NOT_FOUND)
+
+        serializer = self.get_serializer(sala)
+        return Response({'sala ': serializer.data}, status=status.HTTP_200_OK)
+    
+    
+    # método que permite a exibição de mensagens se a sala não existir, ou se ela existir, retornar, em formato json ela atualizada
+    def update(self, request, *args, **kwargs):
+        try:
+            sala = self.get_object()
+        except Http404:
+            return Response({'message': 'Sala não encontrada'}, status=status.HTTP_404_NOT_FOUND)
+
+        partial = kwargs.pop('partial', False)
+        serializer = self.get_serializer(sala, data=request.data, partial=partial)
+        serializer.is_valid(raise_exception=True)
+        self.perform_update(serializer)
+
+        return Response({'sala ': serializer.data}, status=status.HTTP_200_OK)
+    
 
     # método que permite a exibição de mensagens para o usuário se a reserva não exitir, ou se ela existir, mostrar que foi excluída
     def destroy(self, request, *args, **kwargs):
