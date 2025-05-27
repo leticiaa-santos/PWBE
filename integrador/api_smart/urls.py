@@ -15,7 +15,7 @@ urlpatterns = [
 
     # Sensores
     path('sensores/', SensoresListCreate.as_view()),
-    path('sensores/<int:pk>/<str:sensor>/', SensoresRetrieveUpdateDestroy.as_view()),
+    path('sensores/<int:pk>/', SensoresRetrieveUpdateDestroy.as_view()),
 
     # Ambientes
     path('ambientes/', AmbienteListCreate.as_view()),
