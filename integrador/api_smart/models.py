@@ -2,10 +2,10 @@ from django.db import models
 
 class Sensores(models.Model):
     SENSOR_ESCOLHA = ( # opções de escolha para o sensor
-        ('T', 'temperatura'),
-        ('L', 'luminosidade'),
-        ('U', 'umidade'),
-        ('C', 'contador')
+        ('temperatura', 'temperatura'),
+        ('luminosidade', 'luminosidade'),
+        ('umidade', 'umidade'),
+        ('contador', 'contador')
     )
 
     UNIDADE_ESCOLHA = ( # opções de escolha para a unidade de medida
@@ -16,16 +16,16 @@ class Sensores(models.Model):
     )
 
     STATUS_ESCOLHA = ( # opções de escolha para status
-        ('A', 'ativo'),
-        ('I', 'inativo')
+        ('ativo', 'ativo'),
+        ('inativo', 'inativo')
     )
 
-    sensor = models.CharField(max_length=2, choices=SENSOR_ESCOLHA)
+    sensor = models.CharField(max_length=20, choices=SENSOR_ESCOLHA)
     mac_address = models.CharField(max_length=50)
     unidade_med = models.CharField(max_length=4, choices=UNIDADE_ESCOLHA)
     latitude = models.FloatField()
     longitude = models.FloatField()
-    status = models.CharField(max_length=2, choices=STATUS_ESCOLHA)
+    status = models.CharField(max_length=10, choices=STATUS_ESCOLHA)
 
     def __str__(self):
         return self.get_sensor_display() # forma de mostrar o valor da escolha do sensor

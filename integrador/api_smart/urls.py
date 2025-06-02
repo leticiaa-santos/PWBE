@@ -5,7 +5,10 @@ from .views import (
     AmbienteListCreate,
     AmbienteRetrieveUpdateDestroy,
     HistoricoListCreate,
-    HistoricoRetrieveUpdateDestroy
+    HistoricoRetrieveUpdateDestroy,
+    ler_excel,
+    exportar_excel,
+    exportar_ambiente
 )
 from rest_framework_simplejwt.views import TokenObtainPairView
 
@@ -24,4 +27,9 @@ urlpatterns = [
     # Historico
     path('historico/', HistoricoListCreate.as_view()),
     path('historico/<int:pk>/', HistoricoRetrieveUpdateDestroy.as_view()),
+
+    # Excel
+    path('importar/', ler_excel, name='ler_excel'),
+    # path('exportar/', exportar_excel, name='exportar_excel'),
+    path('exportar/', exportar_excel, name='exportar_excel'),
 ]
