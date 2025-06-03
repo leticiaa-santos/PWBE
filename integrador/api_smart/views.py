@@ -5,7 +5,10 @@ from .serializers import SensoresSerializer, AmbientesSerializer, HistoricoSeria
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework import status
-from .utils import ler_excel, exportar_excel, exportar_ambiente
+from .utils import ler_excel, exportar_excel
+from rest_framework.views import APIView
+from django_filters.rest_framework import DjangoFilterBackend
+from .filtros import FiltroSensor, FiltroSig
 
 class SensoresListCreate(ListCreateAPIView):
     queryset = Sensores.objects.all()
@@ -18,6 +21,9 @@ class SensoresRetrieveUpdateDestroy(RetrieveUpdateDestroyAPIView):
     serializer_class = SensoresSerializer
     lookup_field = 'pk'
     permission_classes = [IsAuthenticated]
+
+    filter_backends = [DjangoFilterBackend]
+    filterset_class = FiltroSensor
 
     #mensagem que foi atualizado
     def update(self, request, *args, **kwargs):
@@ -47,6 +53,9 @@ class AmbienteRetrieveUpdateDestroy(RetrieveUpdateDestroyAPIView):
     lookup_field = 'pk'
     permission_classes = [IsAuthenticated]
 
+    filter_backends = [DjangoFilterBackend]
+    filterset_class = FiltroSig
+
 
 class HistoricoListCreate(ListCreateAPIView):
     queryset = Historico.objects.all()
@@ -59,3 +68,24 @@ class HistoricoRetrieveUpdateDestroy(RetrieveUpdateDestroyAPIView):
     serializer_class = HistoricoSerializer
     lookup_field = 'pk'
     permission_classes = [IsAuthenticated]
+
+
+class ImportarExcel(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request):
+        try:
+            ler_excel(request)
+            return Response({"menssagem": "Dados importados com sucesso"}, status=status.HTTP_200_OK)
+        except Exception:
+            return Response({"mensagem": "Você não tem a devida autorização para realizar a importação dos dados"}, status=status.HTTP_401_UNAUTHORIZED)
+
+
+class ExportarExcel(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        try:
+            return exportar_excel(request)
+        except Exception:
+            return Response({"mensagem": "Você não tem a devida autorização para realizar a exportação dos dados"}, status=status.HTTP_401_UNAUTHORIZED)

@@ -1,11 +1,9 @@
 import os
 import pandas as pd
-import openpyxl
 import io
 from .models import Ambientes, Historico, Sensores
 from django.http import JsonResponse, HttpResponse, FileResponse
 import zipfile
-import io
 from django.shortcuts import get_object_or_404
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))  # pasta onde está o script
@@ -99,7 +97,7 @@ def ler_excel_sensor():
                    pd.read_excel(contador_excel), 
                    pd.read_excel(luminosidade_excel),
                    pd.read_excel(temperatura_excel)])
-    print(df)
+    # print(df)
     
     for _, row in df.iterrows():
         sensor = criar_sensor(
