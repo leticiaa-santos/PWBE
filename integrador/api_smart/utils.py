@@ -6,9 +6,15 @@ from .models import Ambientes, Historico, Sensores
 from django.http import JsonResponse, HttpResponse, FileResponse
 import zipfile
 import io
+from django.shortcuts import get_object_or_404
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))  # pasta onde está o script
+
+#ambientes
 ambientes_excel = os.path.join(BASE_DIR, 'excel', 'ambientes.xlsx')
+
+#historico
+historico_excel = os.path.join(BASE_DIR, 'excel', 'histórico.xlsx')
 
 # sensores
 umidade_excel = os.path.join(BASE_DIR, 'excel', 'umidade.xlsx')
@@ -20,6 +26,7 @@ temperatura_excel = os.path.join(BASE_DIR, 'excel', 'temperatura.xlsx')
 def ler_excel(request):
     ler_excel_ambientes()
     ler_excel_sensor()
+    ler_excel_historico()
     return JsonResponse({'mensagem': 'Os dados foram importados com sucesso!'})
 
 def exportar_excel(request):
@@ -42,16 +49,25 @@ def exportar_excel(request):
         sensores_csv = io.StringIO()
         df_sensores.to_csv(sensores_csv, index=False, sep=';')
         zf.writestr('sensores.csv', sensores_csv.getvalue())
+        
+        # Exportar histórico
+        historico = Ambientes.objects.all().values()
+        df_historico = pd.DataFrame(historico)
+        historico_csv = io.StringIO()
+        # abre o arquivo para colocar dentro, ele salva e cria
+        df_historico.to_csv(historico_csv, index=False, sep=';')
+        zf.writestr('historico.csv', historico_csv.getvalue())
 
     zip_buffer.seek(0)
 
     response = HttpResponse(zip_buffer, content_type='application/zip')
     response['Content-Disposition'] = 'attachment; filename="dados.zip"'
+    
     return response
 
 def ler_excel_ambientes():
     df = pd.read_excel(ambientes_excel)
-    #importados os ambientes
+    #importando os ambientes
     for _, row in df.iterrows():
         criar_ambiente(
             sig=row['sig'],
@@ -95,7 +111,7 @@ def ler_excel_sensor():
             status = row['status']
         )
         
-        print(sensor)
+    # print(sensor)
 
 
 def criar_sensor(sensor, mac_address,  unidade_med, latitude, longitude, status):
@@ -112,4 +128,37 @@ def criar_sensor(sensor, mac_address,  unidade_med, latitude, longitude, status)
 def exportar_sensores():
     sensores = Ambientes.objects.all().values()
     df = pd.DataFrame(list(sensores))
+    return df
+
+
+
+def ler_excel_historico():
+    df = pd.read_excel(historico_excel)
+    #importando os ambientes
+    for _, row in df.iterrows():
+        criar_historico(
+            sensor=row['sensor'],
+            ambiente=row['ambiente'],
+            valor=row['valor'],
+            timestamp=row['timestamp']
+        )
+    data = df.to_dict(orient='records')
+    return JsonResponse({'mensagem': 'dados importados com sucesso!'})
+    
+    
+def criar_historico(sensor, ambiente, valor, timestamp):
+    sensor_obj = get_object_or_404(Sensores, id=sensor)
+    ambiente_obj = get_object_or_404(Ambientes, id=ambiente)
+
+    historico = Historico.objects.create(
+        sensor=sensor_obj,
+        ambiente=ambiente_obj,
+        valor=valor,
+        timestamp=timestamp
+    )
+    return historico
+
+def exportar_ambiente():
+    historico = Historico.objects.all().values()
+    df = pd.DataFrame(list(historico))
     return df
