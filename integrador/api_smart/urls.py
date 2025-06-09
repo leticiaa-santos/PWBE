@@ -29,7 +29,7 @@ urlpatterns = [
     path('historico/<int:pk>/', HistoricoRetrieveUpdateDestroy.as_view()),
 
     # Excel
-    path('importar/', ImportarExcel.as_view(), name='ler_excel'),
-    path('exportar/', ExportarExcel.as_view(), name='exportar_excel'),
+    path('importar/', ImportarExcel.as_view()),
+    path('exportar/', ExportarExcel.as_view()),
     # path('exportar/', exportar_excel, name='exportar_excel'),
 ]

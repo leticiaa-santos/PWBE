@@ -49,7 +49,7 @@ def exportar_excel(request):
         zf.writestr('sensores.csv', sensores_csv.getvalue())
         
         # Exportar histórico
-        historico = Ambientes.objects.all().values()
+        historico = Historico.objects.all().values()
         df_historico = pd.DataFrame(historico)
         historico_csv = io.StringIO()
         # abre o arquivo para colocar dentro, ele salva e cria
@@ -78,13 +78,13 @@ def ler_excel_ambientes():
     
     
 def criar_ambiente(sig, descricao, ni, responsavel):
-    ambiente = Ambientes.objects.create(
+    ambientes = Ambientes.objects.create(
         sig=sig,
         descricao=descricao,
         ni=ni,
         responsavel=responsavel
     )
-    return ambiente
+    return ambientes
 
 def exportar_ambiente():
     ambientes = Ambientes.objects.all().values()
