@@ -8,5 +8,5 @@ urlpatterns = [
 
     # Tarefa
     path('tarefa/', TarefaListCreate.as_view()),
-    path('tarefa/<int:pk>', TarefaRUD.as_view()),
+    path('tarefa/<int:pk>/', TarefaRUD.as_view()),
 ]
